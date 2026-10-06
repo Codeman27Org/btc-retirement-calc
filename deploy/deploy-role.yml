@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: GitHub Actions OIDC deploy role for btc.cody-roof.com (S3 + CloudFront created outside this stack)
+
+Parameters:
+  BucketName:
+    Type: String
+    Default: btc-retirement-calc-codeman27
+  DistributionId:
+    Type: String
+    Default: E3NFIBQCQ7WXW5
+  GitHubRepo:
+    Type: String
+    Description: owner@ownerId/repo@repoId, matching GitHub's immutable OIDC subject for this repo
+    Default: codeman27@22015751/btc-retirement-calc@1407568033
+  GitHubBranch:
+    Type: String
+    Default: main
+
+Resources:
+  # Uses the account's existing GitHub OIDC provider (owned by the mtg-collection stack).
+  DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: !Sub 'GitHub Actions deploy for ${GitHubRepo} on ${GitHubBranch}'
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com'
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub 'repo:${GitHubRepo}:ref:refs/heads/${GitHubBranch}'
+      Policies:
+        - PolicyName: deploy-site
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${BucketName}'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${BucketName}/*'
+              - Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${DistributionId}'
+
+Outputs:
+  DeployRoleArn:
+    Value: !GetAtt DeployRole.Arn
