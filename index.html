@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Retirement Calculator</title>
+  <meta name="description" content="Calculate when you can retire by borrowing against your Bitcoin — the borrow 'til you die strategy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+
+    <header class="header">
+      <h1><span class="btc-symbol">₿</span> Bitcoin Retirement Calculator</h1>
+      <p class="subtitle">Never sell your Bitcoin. Borrow against it, refinance every year, and live off your stack — the borrow 'til you die strategy.</p>
+    </header>
+
+    <section class="panel" id="inputs-panel">
+      <div class="mode-toggle" role="tablist">
+        <button type="button" id="mode-forward" class="mode-btn active" role="tab">When can I retire?</button>
+        <button type="button" id="mode-reverse" class="mode-btn" role="tab">How much BTC do I need?</button>
+      </div>
+
+      <div class="inputs-grid">
+
+        <div class="field" id="field-btcHoldings">
+          <label for="btcHoldings">Bitcoin Holdings (BTC)</label>
+          <input type="number" id="btcHoldings" value="2" min="0" step="0.1" />
+          <span class="helper">Your current Bitcoin stack</span>
+        </div>
+
+        <div class="field hidden" id="field-targetAge">
+          <label for="targetAge">Target Retirement Age</label>
+          <input type="number" id="targetAge" value="50" min="0" max="130" step="1" />
+          <span class="helper">The age you want to retire at</span>
+        </div>
+
+        <div class="field">
+          <label for="annualSpend">Annual Spending ($)</label>
+          <input type="number" id="annualSpend" value="100000" min="0" step="1000" />
+          <span class="helper">Yearly living expenses in today's dollars</span>
+        </div>
+
+        <div class="field">
+          <label for="btcPrice">Current BTC Price ($)</label>
+          <input type="number" id="btcPrice" value="100000" min="0" step="1000" />
+          <span class="helper">Starting price for growth projections</span>
+        </div>
+
+        <div class="field">
+          <label for="inflation">Inflation Rate (% / yr)</label>
+          <input type="number" id="inflation" value="3" min="0" max="100" step="0.1" />
+          <span class="helper">How fast your spending grows each year</span>
+        </div>
+
+        <div class="field">
+          <label for="btcReturn">Expected BTC Return (% / yr)</label>
+          <input type="number" id="btcReturn" value="30" min="-100" max="1000" step="0.5" />
+          <span class="helper">Assumed annual Bitcoin appreciation</span>
+        </div>
+
+        <div class="field">
+          <label for="loanRate">Loan Interest Rate (% / yr)</label>
+          <input type="number" id="loanRate" value="8" min="0" max="100" step="0.1" />
+          <span class="helper">Interest charged on your outstanding loan</span>
+        </div>
+
+        <div class="field">
+          <label for="riskProfile">Risk Profile (LTV)</label>
+          <select id="riskProfile">
+            <option value="aggressive">Aggressive — borrow at 50% LTV</option>
+            <option value="moderate" selected>Moderate — borrow at 25% LTV</option>
+            <option value="conservative">Conservative — borrow at 10% LTV</option>
+          </select>
+          <span class="helper">How much of your stack you borrow against — most lenders cap at ~50%</span>
+        </div>
+
+      </div>
+
+      <details class="advanced">
+        <summary>Advanced Settings</summary>
+        <div class="inputs-grid">
+          <div class="field">
+            <label for="currentAge">Current Age</label>
+            <input type="number" id="currentAge" value="40" min="0" max="120" step="1" />
+            <span class="helper">Your age today</span>
+          </div>
+          <div class="field">
+            <label for="deathAge">Plan Until Age</label>
+            <input type="number" id="deathAge" value="95" min="1" max="130" step="1" />
+            <span class="helper">End of the simulation horizon (life expectancy)</span>
+          </div>
+        </div>
+      </details>
+
+      <button id="calculate" class="btn-primary">Calculate</button>
+    </section>
+
+    <section id="snapshot" class="snapshot hidden">
+      <div id="snapshot-hero" class="snapshot-hero"></div>
+      <div id="snapshot-cards" class="stat-cards"></div>
+    </section>
+
+    <section id="breakdown" class="panel hidden">
+      <h2>Year-by-Year Breakdown</h2>
+      <p class="table-note" id="table-note"></p>
+      <div class="table-scroll-top" id="scroll-top" aria-hidden="true"><div class="scroll-spacer" id="scroll-spacer"></div></div>
+      <div class="table-wrap" id="table-wrap">
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Age</th>
+              <th>BTC Price</th>
+              <th>Portfolio<br />Value</th>
+              <th>Annual<br />Spend</th>
+              <th>Loan<br />Balance</th>
+              <th>Collat.<br />(BTC)</th>
+              <th>Free<br />BTC</th>
+              <th>Debt /<br />Assets</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Educational purposes only — not financial advice. Loan availability, rates, and liquidation terms vary by lender.</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
