@@ -11,7 +11,7 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: owner@ownerId/repo@repoId, matching GitHub's immutable OIDC subject for this repo
-    Default: codeman27@22015751/btc-retirement-calc@1407568033
+    Default: Codeman27Org@232694080/btc-retirement-calc@1407568033
   GitHubBranch:
     Type: String
     Default: main
